@@ -1,0 +1,141 @@
+<html lang='en'>
+<head>
+    <style>
+        button {
+            background-color: blue; 
+
+            color: white; 
+            padding: 20px 30px;
+            border: none; 
+            cursor: pointer; 
+            text-align: center; 
+            display: inline-block; 
+            margin: 5px; 
+            font-size: 20px; 
+            
+            }
+
+        button:active {
+            background-color: red; 
+            }
+        input[type='range'] {
+            appearance: slider-vertical;
+        }
+        #slidder{
+            position: absolute;
+            left: 0%;
+            height: 80%;
+            top: 0%;   
+        }
+        #slidder1{
+            position: absolute;
+            left: 90%;
+            height: 80%; 
+            top: 0%;
+        }
+        #izq{
+            position: absolute;
+            left: 5%;
+            font-size: 20px;
+            top: 0%;
+        }
+        #der{
+            position: absolute;
+            left: 89%;
+            font-size: 20px;
+            top: 0%;
+        }
+        #status{
+            position: absolute;
+            left: 46%;
+            top: 80%;
+        }
+        #camara{
+            border: 1px solid black;
+            width: 60%;
+            height: 70%;
+            position: absolute;
+            left: 20%;
+        }
+        #distancia{
+            left: 46%;
+            font-size: 20px;
+            position: absolute;
+            top: 90%;
+        }
+
+    </style>
+    <script>
+        function izquierda_rango(){
+            document.getElementById('status').innerHTML='moviendose';
+            var req = new XMLHttpRequest();
+            req.open('get','/izquierda_rango?vel='+document.getElementById('slidder').value);
+            req.send();
+
+        }
+        function derecha_rango(){
+            document.getElementById('status').innerHTML='moviendose';
+            var req = new XMLHttpRequest();
+            req.open('get','/derecha_rango?vel='+document.getElementById('slidder1').value);
+            req.send();
+
+        }
+        function dejar_up(){
+        document.getElementById('slidder').value=0;
+        document.getElementById('status').innerHTML='detenido';
+        var req = new XMLHttpRequest();
+        req.open('get','/izquierda_rango?vel='+document.getElementById('slidder').value);
+        req.send();
+        }
+        function dejar_up1(){
+        document.getElementById('slidder1').value=0;
+        document.getElementById('status').innerHTML='detenido';
+        var req = new XMLHttpRequest();
+        req.open('get','/derecha_rango?vel='+document.getElementById('slidder1').value);
+        req.send();
+        }
+        function datos(){
+            setInterval(getSensor,200)
+        }
+        function getSensor(){
+            var req= new XMLHttpRequest();
+            req.open('get','/getSensor');
+            req.onreadystatechange=function(){
+                if (req.status==200 && req.readyState==4) {
+                    document.getElementById('distancia').innerHTML= req.responseText;
+                }
+            }
+            req.send();
+        }
+        function delante(){
+            if (event.key=='w') {
+                document.getElementById('slidder1').value=255;
+                document.getElementById('slidder').value=255;
+                document.getElementById('status').innerHTML='delante';
+                var req = new XMLHttpRequest();
+                req.open('get','/delante');
+                req.send();   
+            }
+        }
+        function dejar(){
+            document.getElementById('slidder1').value=0;
+            document.getElementById('slidder').value=0;
+            document.getElementById('status').innerHTML='stop';
+            var req = new XMLHttpRequest();
+            req.open('get','/dejar');
+            req.send(); 
+        }
+    </script>
+</head>
+<body onload='datos();' onkeydown='delante()' onkeyup='dejar()'>
+    <input id='slidder' type='range' min='-255' max='255' oninput='izquierda_rango()' onmouseup='dejar_up()'>
+    <br>
+    <h4 id='izq'>Izquierda</h4>
+    <h4 id='der'>Derecha</h4>
+    <input id='slidder1' type='range' min='-255' max='255' oninput='derecha_rango()' onmouseup='dejar_up1()'> 
+    <div id='status'></div>
+    <div id='camara'></div>
+    
+    <div id='distancia' >0.0cm</div>
+</body>
+</html>
